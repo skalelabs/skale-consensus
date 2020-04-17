@@ -127,25 +127,12 @@ void ConsensusEngine::logInit() {
         }
     }
 
-
-    string logFileName;
-    if (engineID > 1) {
-        logFileName = "skaled." + to_string(engineID) + ".log";
-    } else {
-        logFileName = "skaled.log";
-    }
-
     if (dataDir != nullptr) {
-        logFileNamePrefix = make_shared<string>(*dataDir + "/" + logFileName);
-        logRotatingFileSync = make_shared<spdlog::sinks::rotating_file_sink_mt>(*logFileNamePrefix,
-                                                                                10 * 1024 * 1024, 5);
         healthCheckDir = dataDir;
         dbDir = dataDir;
     } else {
         healthCheckDir = make_shared<string>("/tmp");
         dbDir = healthCheckDir;
-        logFileNamePrefix = nullptr;
-        logRotatingFileSync = nullptr;
     }
 
 
@@ -163,12 +150,8 @@ shared_ptr<spdlog::logger> ConsensusEngine::createLogger(const string &loggerNam
     shared_ptr<spdlog::logger> logger = spdlog::get(loggerName);
 
     if (!logger) {
-        if (logFileNamePrefix != nullptr) {
-            logger = make_shared<spdlog::logger>(loggerName, logRotatingFileSync);
-            logger->flush_on(debug);
-        } else {
-            logger = spdlog::stdout_color_mt(loggerName);
-        }
+        logger = spdlog::stdout_color_mt(loggerName);
+        logger->flush_on(trace);
         logger->set_pattern("%+", spdlog::pattern_time_type::utc);
     }
 

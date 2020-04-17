@@ -75,11 +75,6 @@ private:
 
     static recursive_mutex logMutex;
 
-
-    shared_ptr< string > logFileNamePrefix;
-
-    shared_ptr< spdlog::sinks::sink > logRotatingFileSync;
-
 public:
 
     void logInit();
