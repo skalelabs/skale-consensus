@@ -84,5 +84,5 @@ jobs:
     - name: build consensus
       run: cd scripts && ./build.py Debug > /tmp/log_of_build.txt   2>&1 || ( tail -1000 /tmp/log_of_build.txt && false );
     - name: run tests
-      run: cd scripts && ./tests.py
+      run: ./scripts/tests.py
 
