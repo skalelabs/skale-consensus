@@ -323,9 +323,9 @@ JSONFactory::parseTestKeyNamesFromJson( ptr<string> _sgxServerURL, const fs_path
     CHECK_ARGUMENT( _totalNodes > 0 );
 
     auto ecdsaKeyNames = make_shared< vector< string > >();
-    auto ecdsaPublicKeyNames = make_shared< vector< string > >();
+    auto ecdsaPublicKeys = make_shared< vector< string > >();
     auto blsKeyNames = make_shared< vector< string > >();
-    auto blsPublicKeyNames = make_shared< vector< ptr< vector< string > > > >();
+    auto blsPublicKeyShares = make_shared< vector< ptr< vector< string > > > >();
 
 
     nlohmann::json j;
@@ -376,7 +376,7 @@ JSONFactory::parseTestKeyNamesFromJson( ptr<string> _sgxServerURL, const fs_path
 
         auto publicKey = response["publicKey"].asString();
 
-        ecdsaPublicKeyNames->push_back( publicKey );
+        ecdsaPublicKeys->push_back( publicKey );
     }
 
 
@@ -391,18 +391,18 @@ JSONFactory::parseTestKeyNamesFromJson( ptr<string> _sgxServerURL, const fs_path
 
         CHECK_STATE( fourPieces.size() == 4 );
 
-        blsPublicKeyNames->push_back( make_shared< vector< string > >() );
+        blsPublicKeyShares->push_back( make_shared< vector< string > >() );
 
         for ( uint64_t k = 0; k < 4; k++ ) {
-            blsPublicKeyNames->back()->push_back( fourPieces[( int ) k].asString() );
+            blsPublicKeyShares->back()->push_back( fourPieces[( int ) k].asString() );
         }
     }
 
 
     CHECK_STATE( ecdsaKeyNames->size() == _totalNodes )
     CHECK_STATE( blsKeyNames->size() == _totalNodes )
-    CHECK_STATE( ecdsaPublicKeyNames->size() == _totalNodes )
-    CHECK_STATE( blsPublicKeyNames->size() == _totalNodes )
+    CHECK_STATE( ecdsaPublicKeys->size() == _totalNodes )
+    CHECK_STATE( blsPublicKeyShares->size() == _totalNodes )
 
     // create pub key
 
@@ -412,7 +412,7 @@ JSONFactory::parseTestKeyNamesFromJson( ptr<string> _sgxServerURL, const fs_path
     for ( uint64_t i = 0; i < _requiredNodes; i++ ) {
         blsPublicKeysMap->emplace(
             i + 1, make_shared< BLSPublicKeyShare >(
-                       blsPublicKeyNames->at( i ), _requiredNodes, _totalNodes ) );
+                       blsPublicKeyShares->at( i ), _requiredNodes, _totalNodes ) );
     }
 
 
@@ -456,7 +456,7 @@ JSONFactory::parseTestKeyNamesFromJson( ptr<string> _sgxServerURL, const fs_path
     CHECK_STATE( blsPublicKey->VerifySigWithHelper(
         hash->getHash(), commonSig, _requiredNodes, _totalNodes ) );
 
-    return { ecdsaKeyNames, ecdsaPublicKeyNames, blsKeyNames, blsPublicKeyNames, blsPublicKeyVect };
+    return { ecdsaKeyNames, ecdsaPublicKeys, blsKeyNames, blsPublicKeyShares, blsPublicKeyVect };
 }
 
 
