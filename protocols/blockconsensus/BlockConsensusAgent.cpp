@@ -191,6 +191,28 @@ void BlockConsensusAgent::decideDefaultBlock(block_id _blockNumber) {
 }
 
 
+// having a schain index, returns next schain index in the rank from high to low
+// returns 0 if end of the list
+// pass zero as schain_index to get first element
+
+schain_index BlockConsensusAgent::nextByRank(uint64_t _seed, schain_index _current) {
+    auto nodeCount = (uint64_t) getSchain()->getNodeCount();
+    auto random = ((uint64_t) _seed) % nodeCount;
+
+    if (_current == 0) {
+        return ((uint64_t) _seed) % nodeCount + 1;
+    }
+
+    auto next = (((uint64_t ) _current + 1) % nodeCount) + 1;
+
+    if (next == random) // end of list
+        return 0;
+    else
+        return next;
+}
+
+
+
 void BlockConsensusAgent::reportConsensusAndDecideIfNeeded(ptr<ChildBVDecidedMessage> _msg) {
 
     CHECK_ARGUMENT(_msg);
@@ -252,30 +274,27 @@ void BlockConsensusAgent::reportConsensusAndDecideIfNeeded(ptr<ChildBVDecidedMes
             seed = *((uint64_t *) previousBlock->getHash()->data());
         }
 
-        auto random = ((uint64_t) seed) % nodeCount;
+        auto index = nextByRank(seed, 0);
 
-
-        for (uint64_t i = random; i < random + nodeCount; i++) {
-            auto index = schain_index(i % nodeCount) + 1;
+        do {
             if (trueDecisions->exists((uint64_t) blockID) &&
                 trueDecisions->get((uint64_t) blockID)->count(index) > 0) {
-
                 ptr<string> statsString = buildStats(blockID);
-
                 CHECK_STATE(statsString);
-
                 decideBlock(blockID, index, statsString);
-
                 return;
             }
             if (!falseDecisions->exists((uint64_t) blockID) ||
                 falseDecisions->get((uint64_t) blockID)->count(index) == 0) {
                 return;
             }
-        }
+            index = nextByRank(seed, index);
+        } while ((uint64_t) index != 0);
     } catch (ExitRequestedException &) { throw; } catch (SkaleException &e) {
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
+
+
 
 }
 

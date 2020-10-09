@@ -60,6 +60,8 @@ class BlockConsensusAgent : public ProtocolInstance {
 
     void reportConsensusAndDecideIfNeeded(ptr<ChildBVDecidedMessage> _msg);
 
+    schain_index nextByRank(uint64_t _seed, schain_index _current);
+
     void decideDefaultBlock(block_id _blockNumber);
 
     void startConsensusProposal(block_id _blockID, ptr<BooleanProposalVector> _proposal);
