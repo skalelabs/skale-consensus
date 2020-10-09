@@ -60,7 +60,17 @@ class BlockConsensusAgent : public ProtocolInstance {
 
     void reportConsensusAndDecideIfNeeded(ptr<ChildBVDecidedMessage> _msg);
 
+    void tryDecidingBlock(block_id _blockID);
+
+    schain_index firstByRank(uint64_t _seed);
+
+    uint64_t getProposerRank(uint64_t _seed, schain_index _schainIndex);
+
     schain_index nextByRank(uint64_t _seed, schain_index _current);
+
+    bool decidedTrue(block_id _blockID, schain_index _index);
+
+    bool decidedFalse(block_id _blockID, schain_index _index);
 
     void decideDefaultBlock(block_id _blockNumber);
 
@@ -95,5 +105,6 @@ public:
 
     void routeAndProcessMessage(ptr<MessageEnvelope> _me );
 
+    uint64_t computeSeed( const block_id& _blockID ) const;
 };
 

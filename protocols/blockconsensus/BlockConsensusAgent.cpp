@@ -190,10 +190,35 @@ void BlockConsensusAgent::decideDefaultBlock(block_id _blockNumber) {
     }
 }
 
+uint64_t BlockConsensusAgent::getProposerRank(uint64_t _seed, schain_index _schainIndex) {
+    auto nodeCount = (uint64_t ) getSchain()->getNodeCount();
+    auto random = ((uint64_t) _seed) % nodeCount;
+    auto normalizedIndex = (uint64_t ) _schainIndex - 1;
+    auto normalizedRank = (normalizedIndex + nodeCount - random) % nodeCount;
+    return normalizedRank + 1;
+}
 
-// having a schain index, returns next schain index in the rank from high to low
+
+// returns index of the highest rated node given the current seed
+schain_index BlockConsensusAgent::firstByRank(uint64_t _seed) {
+    return nextByRank(_seed, 0);
+}
+
+// having index of a node, returns next schain index in the rank from high to low
 // returns 0 if end of the list
 // pass zero as schain_index to get first element
+
+// check if consensus decided True
+
+bool BlockConsensusAgent::decidedTrue(block_id _blockID, schain_index _index) {
+    return ( trueDecisions->exists( ( uint64_t ) _blockID ) &&
+             trueDecisions->get( ( uint64_t ) _blockID )->count( _index ) > 0 );
+}
+
+bool BlockConsensusAgent::decidedFalse(block_id _blockID, schain_index _index) {
+    return ( falseDecisions->exists( ( uint64_t ) _blockID ) &&
+             falseDecisions->get( ( uint64_t ) _blockID )->count( _index ) > 0 );
+}
 
 schain_index BlockConsensusAgent::nextByRank(uint64_t _seed, schain_index _current) {
     auto nodeCount = (uint64_t) getSchain()->getNodeCount();
@@ -212,6 +237,55 @@ schain_index BlockConsensusAgent::nextByRank(uint64_t _seed, schain_index _curre
 }
 
 
+void BlockConsensusAgent::tryDecidingBlock(block_id _blockID) {
+
+    // if all decisions are false, decide default block
+
+    // compute deterministic seed that determines ranking order of block proposers for a block
+    // seed is based on the hash of the previous block
+
+    auto seed = computeSeed( _blockID );
+
+    // see if we can decide
+
+    auto index = firstByRank(seed);
+
+    do {
+        if (decidedTrue(_blockID, index)) {
+            // decide this index
+            ptr<string> statsString = buildStats(_blockID);
+            CHECK_STATE(statsString);
+            decideBlock(_blockID, index, statsString);
+            return;
+        } else if (decidedFalse(_blockID, index)) {
+            // try next in order
+            index = nextByRank(seed, index);
+        } else {
+            // index undecided, cant decide block yet
+            return;
+        }
+    } while ((uint64_t) index != 0);
+
+    // all decisions 0, decide default block
+    decideDefaultBlock(_blockID);
+}
+uint64_t BlockConsensusAgent::computeSeed( const block_id& _blockID ) const {
+    uint64_t seed;
+    {
+        if ( _blockID <= 1 ) {
+            seed = 1;
+        } else {
+            CHECK_STATE( _blockID - 1 <= getSchain()->getLastCommittedBlockID() );
+            auto previousBlock = getSchain()->getBlock( _blockID - 1 );
+            if ( previousBlock == nullptr )
+                BOOST_THROW_EXCEPTION( InvalidStateException(
+                    "Can not read block " + to_string( _blockID - 1 ) + " from LevelDB",
+                    __CLASS_NAME__ ) );
+            seed = *( ( uint64_t* ) previousBlock->getHash()->data() );
+        }
+    }
+    return seed;
+}
 
 void BlockConsensusAgent::reportConsensusAndDecideIfNeeded(ptr<ChildBVDecidedMessage> _msg) {
 
@@ -250,46 +324,8 @@ void BlockConsensusAgent::reportConsensusAndDecideIfNeeded(ptr<ChildBVDecidedMes
         }
 
 
-        if (!trueDecisions->exists((uint64_t) blockID) ||
-            trueDecisions->get((uint64_t) blockID)->empty()) {
-            if (falseDecisions->exists((uint64_t) blockID) &&
-                (uint64_t) falseDecisions->get((uint64_t) blockID)->size() == nodeCount) {
-                decideDefaultBlock(blockID);
-            }
-            return;
-        }
+        tryDecidingBlock(blockID);
 
-        uint64_t seed;
-
-        if (blockID <= 1) {
-            seed = 1;
-        } else {
-
-            CHECK_STATE(blockID - 1 <= getSchain()->getLastCommittedBlockID());
-            auto previousBlock = getSchain()->getBlock(blockID - 1);
-            if (previousBlock == nullptr)
-                BOOST_THROW_EXCEPTION(InvalidStateException("Can not read block "
-                                                            + to_string(blockID - 1) + " from LevelDB",
-                                                            __CLASS_NAME__));
-            seed = *((uint64_t *) previousBlock->getHash()->data());
-        }
-
-        auto index = nextByRank(seed, 0);
-
-        do {
-            if (trueDecisions->exists((uint64_t) blockID) &&
-                trueDecisions->get((uint64_t) blockID)->count(index) > 0) {
-                ptr<string> statsString = buildStats(blockID);
-                CHECK_STATE(statsString);
-                decideBlock(blockID, index, statsString);
-                return;
-            }
-            if (!falseDecisions->exists((uint64_t) blockID) ||
-                falseDecisions->get((uint64_t) blockID)->count(index) == 0) {
-                return;
-            }
-            index = nextByRank(seed, index);
-        } while ((uint64_t) index != 0);
     } catch (ExitRequestedException &) { throw; } catch (SkaleException &e) {
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
