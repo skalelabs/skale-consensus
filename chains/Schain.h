@@ -78,6 +78,9 @@ class Schain : public Agent {
 
     consensus_type consensusType;
 
+public:
+    consensus_type getConsensusType() const;
+private:
     bool bootStrapped = false;
 
     atomic<uint64_t>  totalTransactions;

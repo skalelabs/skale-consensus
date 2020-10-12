@@ -406,13 +406,20 @@ void Schain::proposeNextBlock(
 
         db->checkAndSaveHash( _proposedBlockID, getSchainIndex(), myProposal->getHash()->toHex() );
 
-        blockProposalClient->enqueueItem( myProposal );
+        bool propose = true;
 
-        auto mySig = getSchain()->getCryptoManager()->signDAProofSigShare( myProposal );
+        if (getConsensusType() == FAST) {
+            auto seed = getBlockConsensusInstance()->computeSeed(_proposedBlockID);
+            auto rank = getBlockConsensusInstance()->getProposerRank(seed, getSchainIndex());
+            propose = (rank == 1 );
+        }
 
-        CHECK_STATE( mySig );
-
-        getSchain()->daProofSigShareArrived( mySig, myProposal );
+        if (propose) {
+            blockProposalClient->enqueueItem( myProposal );
+            auto mySig = getSchain()->getCryptoManager()->signDAProofSigShare( myProposal );
+            CHECK_STATE( mySig );
+            getSchain()->daProofSigShareArrived( mySig, myProposal );
+        }
 
     } catch ( ExitRequestedException& e ) {
         throw;
@@ -889,4 +896,7 @@ void Schain::finalizeDecidedAndSignedBlock(
     } catch ( ... ) {
         throw_with_nested( InvalidStateException( __FUNCTION__, __CLASS_NAME__ ) );
     }
+}
+consensus_type Schain::getConsensusType() const {
+    return consensusType;
 }

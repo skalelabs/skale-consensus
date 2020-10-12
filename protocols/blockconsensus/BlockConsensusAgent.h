@@ -62,9 +62,6 @@ class BlockConsensusAgent : public ProtocolInstance {
 
     void tryDecidingBlock(block_id _blockID);
 
-    schain_index firstByRank(uint64_t _seed);
-
-    uint64_t getProposerRank(uint64_t _seed, schain_index _schainIndex);
 
     schain_index nextByRank(uint64_t _seed, schain_index _current);
 
@@ -89,6 +86,10 @@ class BlockConsensusAgent : public ProtocolInstance {
     ptr<string> buildStats(block_id _blockID);
 
 public:
+
+    schain_index firstByRank(uint64_t _seed);
+
+    uint64_t getProposerRank(uint64_t _seed, schain_index _schainIndex);
 
 
 
