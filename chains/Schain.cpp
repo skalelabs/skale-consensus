@@ -186,6 +186,11 @@ void Schain::startThreads() {
 }
 
 
+// empty constructor is used for tests
+Schain::Schain() : Agent() {
+    consensusType = FULL;
+}
+
 Schain::Schain( weak_ptr< Node > _node, schain_index _schainIndex, const schain_id& _schainID,
     ConsensusExtFace* _extFace )
     : Agent( *this, true, true ),
@@ -195,6 +200,21 @@ Schain::Schain( weak_ptr< Node > _node, schain_index _schainIndex, const schain_
       consensusMessageThreadPool( new SchainMessageThreadPool( this ) ),
       node( _node ),
       schainIndex( _schainIndex ) {
+    static string full = "FULL";
+    static string fast = "FAST";
+
+    ptr< string > consensusTypeStr = getNode()->getParamString( "consensysType", full );
+
+    CHECK_STATE( consensusTypeStr );
+
+    if ( consensusTypeStr->compare( fast ) == 0 ) {
+        this->consensusType = FAST;
+    } else if ( consensusTypeStr->compare( full ) == 0 ) {
+        this->consensusType = FULL;
+    } else {
+        CHECK_STATE( false );
+    }
+
     // construct monitoring agent early
     monitoringAgent = make_shared< MonitoringAgent >( *this );
     maxExternalBlockProcessingTime =
@@ -326,11 +346,11 @@ void Schain::blockCommitArrived( block_id _committedBlockID, schain_index _propo
         lastCommittedBlockTimeStamp = _committedTimeStamp;
         lastCommittedBlockTimeStampMs = _committedTimeStampMs;
 
-        if (_proposerIndex > 0) {
+        if ( _proposerIndex > 0 ) {
             committedProposal = getNode()->getBlockProposalDB()->getBlockProposal(
                 _committedBlockID, _proposerIndex );
         } else {
-            committedProposal = createEmptyBlockProposal(_committedBlockID);
+            committedProposal = createEmptyBlockProposal( _committedBlockID );
         }
         CHECK_STATE( committedProposal );
 
@@ -526,8 +546,8 @@ void Schain::startConsensus(
     }
 
 
-    CHECK_STATE( blockConsensusInstance);
-    CHECK_STATE(_proposalVector);
+    CHECK_STATE( blockConsensusInstance );
+    CHECK_STATE( _proposalVector );
 
     auto message = make_shared< ConsensusProposalMessage >( *this, _blockID, _proposalVector );
 
@@ -656,10 +676,10 @@ void Schain::bootstrap( block_id _lastCommittedBlockID, uint64_t _lastCommittedB
     // Step 2 : Bootstrap
 
     try {
-        CHECK_STATE(!bootStrapped);
+        CHECK_STATE( !bootStrapped );
         bootStrapped = true;
         bootstrapBlockID.store( ( uint64_t ) _lastCommittedBlockID );
-        CHECK_STATE(_lastCommittedBlockTimeStamp < ( uint64_t ) 2 * MODERN_TIME );
+        CHECK_STATE( _lastCommittedBlockTimeStamp < ( uint64_t ) 2 * MODERN_TIME );
 
         LOCK( m )
 
@@ -794,12 +814,13 @@ ptr< BlockProposal > Schain::createEmptyBlockProposal( block_id _blockId ) {
         ms++;
     }
 
-    auto myProposal = getNode()->getBlockProposalDB()->getBlockProposal(_blockId,
-        getSchainIndex());
+    auto myProposal =
+        getNode()->getBlockProposalDB()->getBlockProposal( _blockId, getSchainIndex() );
 
-    CHECK_STATE(myProposal);
+    CHECK_STATE( myProposal );
 
-    return make_shared< ReceivedBlockProposal >( *this, _blockId, sec, ms, myProposal->getStateRoot() );
+    return make_shared< ReceivedBlockProposal >(
+        *this, _blockId, sec, ms, myProposal->getStateRoot() );
 }
 
 
@@ -869,6 +890,3 @@ void Schain::finalizeDecidedAndSignedBlock(
         throw_with_nested( InvalidStateException( __FUNCTION__, __CLASS_NAME__ ) );
     }
 }
-
-// empty constructor is used for tests
-Schain::Schain() : Agent() {}

@@ -210,6 +210,11 @@ enum port_type {
     MTA = 6
 };
 
+enum consensus_type {
+    FULL  = 0, FAST = 1
+};
+
+
 
 template<typename T>
 using ptr = typename std::shared_ptr<T>;  // #define ptr shared_ptr

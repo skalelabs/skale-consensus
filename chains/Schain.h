@@ -75,6 +75,9 @@ class BooleanProposalVector;
 
 class Schain : public Agent {
 
+
+    consensus_type consensusType;
+
     bool bootStrapped = false;
 
     atomic<uint64_t>  totalTransactions;
