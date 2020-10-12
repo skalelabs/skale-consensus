@@ -115,9 +115,18 @@ void MonitoringAgent::monitoringLoop(MonitoringAgent *_agent) {
 
                 auto blockId = _agent->getSchain()->getLastCommittedBlockID() + 1;
 
-                if (blockId > 2 && Time::getCurrentTimeMs() - _agent->getSchain()->getLastCommitTimeMs()
+                if (blockId == 1) {
+                    try {
+                        sleep(30);
+                        LOG(info, "Timeout");
+                        _agent->getSchain()->blockProposalReceiptTimeoutArrived(blockId);
+                    } catch (...) {}
+                }
+
+                if (blockId > 1  || Time::getCurrentTimeMs() - _agent->getSchain()->getLastCommitTimeMs()
                                    > BLOCK_PROPOSAL_RECEIVE_TIMEOUT_MS) {
                     try {
+                         LOG(info, "Timeout");
                         _agent->getSchain()->blockProposalReceiptTimeoutArrived(blockId);
                     } catch (...) {}
                 }

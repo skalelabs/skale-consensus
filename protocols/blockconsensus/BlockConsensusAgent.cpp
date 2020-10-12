@@ -195,6 +195,7 @@ uint64_t BlockConsensusAgent::getProposerRank(uint64_t _seed, schain_index _scha
     auto random = ((uint64_t) _seed) % nodeCount;
     auto normalizedIndex = (uint64_t ) _schainIndex - 1;
     auto normalizedRank = (normalizedIndex + nodeCount - random) % nodeCount;
+    cerr << normalizedRank + 1 << endl;
     return normalizedRank + 1;
 }
 

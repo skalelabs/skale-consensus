@@ -408,17 +408,19 @@ void Schain::proposeNextBlock(
 
         bool propose = true;
 
-        if (getConsensusType() == FAST) {
+        if (getConsensusType() == FULL) {
             auto seed = getBlockConsensusInstance()->computeSeed(_proposedBlockID);
             auto rank = getBlockConsensusInstance()->getProposerRank(seed, getSchainIndex());
             propose = (rank == 1 );
         }
 
         if (propose) {
+            cerr << "Proposed" << endl;
             blockProposalClient->enqueueItem( myProposal );
             auto mySig = getSchain()->getCryptoManager()->signDAProofSigShare( myProposal );
             CHECK_STATE( mySig );
             getSchain()->daProofSigShareArrived( mySig, myProposal );
+
         }
 
     } catch ( ExitRequestedException& e ) {
@@ -528,6 +530,9 @@ void Schain::pushBlockToExtFace( ptr< CommittedBlock >& _block ) {
 void Schain::startConsensus(
     const block_id _blockID, ptr< BooleanProposalVector > _proposalVector ) {
     {
+
+        LOG(info, "Starting consensus");
+
         CHECK_ARGUMENT( _proposalVector );
 
         MONITOR( __CLASS_NAME__, __FUNCTION__ )
@@ -578,6 +583,7 @@ void Schain::blockProposalReceiptTimeoutArrived( block_id _blockID ) {
 
         // try starting consensus. It may already have been started due to
         // block proposals received
+        cerr << "Try starting consensus" << endl;
         tryStartingConsensus( pv, _blockID );
     } catch ( ExitRequestedException& e ) {
         throw;
