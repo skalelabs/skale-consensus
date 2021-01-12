@@ -77,10 +77,25 @@ TCPServerSocket::~TCPServerSocket() {
 void TCPServerSocket::touch() {
     try {
         using namespace boost::asio;
-        ip::tcp::endpoint ep( ip::address::from_string( bindIP ), bindPort );
-        io_service service;
-        ip::tcp::socket sock( service );
-        sock.connect( ep );
+        ip::tcp::endpoint ep( ip::address::from_string( "123.123.123.125" ), bindPort );
+        io_context io;
+
+        ip::tcp::socket sock( io );
+        steady_timer timer(io, ::std::chrono::seconds(2));
+
+        sock.async_connect( ep, [&](const boost::system::error_code& err ){
+            std::cout << "timer cancel " << err << std::endl;
+            timer.cancel();
+        });
+
+        timer.async_wait( [&](const boost::system::error_code& err ){
+            std::cout << "sock close " << err << std::endl;
+            sock.close();
+        });
+
+        std::cout << "before run" << std::endl;
+        io.run();
+        std::cout << "after run" << std::endl;
     } catch (...) {};    
 }
 
