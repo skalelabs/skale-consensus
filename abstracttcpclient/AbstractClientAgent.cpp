@@ -119,8 +119,8 @@ void AbstractClientAgent::enqueueItemImpl( const ptr< SendableItem >& _item ) {
 
     for ( uint64_t i = 1; i <= ( uint64_t ) getSchain()->getNodeCount(); i++ ) {
         {
-            lock_guard< std::mutex > lock( *queueMutex[schain_index( i )] );
-            auto q = itemQueue[schain_index( i )];
+            lock_guard< mutex > lock( *queueMutex.at(schain_index( i )) );
+            auto q = itemQueue.at(schain_index( i ));
             CHECK_STATE( q );
             CHECK_STATE(dynamic_pointer_cast<DAProof>(_item) ||
                         dynamic_pointer_cast<BlockProposal>(_item));
@@ -150,13 +150,13 @@ void AbstractClientAgent::workerThreadItemSendLoop( AbstractClientAgent* agent )
     try {
         while ( !agent->getSchain()->getNode()->isExitRequested() ) {
             {
-                std::unique_lock< std::mutex > mlock( *agent->queueMutex[destinationSchainIndex] );
+                std::unique_lock< std::mutex > mlock( *agent->queueMutex.at(destinationSchainIndex) );
 
-                while ( agent->itemQueue[destinationSchainIndex]->empty() ) {
+                while ( agent->itemQueue.at(destinationSchainIndex)->empty() ) {
                     if ( agent->getSchain()->getNode()->isExitRequested() )
                         return;
                     agent->getSchain()->getNode()->exitCheck();
-                    agent->queueCond[destinationSchainIndex]->wait( mlock );
+                    agent->queueCond.at(destinationSchainIndex)->wait( mlock );
                 }
 
 

@@ -35,6 +35,7 @@ class CommittedBlock;
 class GlobalThreadRegistry;
 class ConnectionRefusedException;
 
+using namespace std;
 
 class Agent {
 
@@ -43,35 +44,21 @@ protected:
 
     bool isServer;
 
-
-    /**
-     *  Conditional variable that controls access to the inbox
-     */
-    condition_variable dispatchCond;
-
-
-    /**
-     * Mutex that controls access to inbox
-     */
     mutex messageMutex;
-
-
-    /**
-     *  Conditional variable that controls access to the inbox
-     */
     condition_variable messageCond;
 
 
-    std::map< schain_index, ptr< std::condition_variable > > queueCond;
+    map< schain_index, ptr< condition_variable > > queueCond; // thread safe
+    map< schain_index, ptr< mutex > > queueMutex; // thread safe
 
-    std::map< schain_index, ptr< std::mutex > > queueMutex;
+    map<schain_index, uint64_t> lastConnectionRefusedLogTime;
 
 
     Schain* sChain;
 
     std::recursive_mutex m;
 
-    map<schain_index, uint64_t> lastConnectionRefusedLogTime;
+
 
 public:
     Agent( Schain& _sChain, bool isServer, bool _dontRegister = false );

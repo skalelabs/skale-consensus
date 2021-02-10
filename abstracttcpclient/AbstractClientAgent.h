@@ -43,15 +43,16 @@ protected:
 
     atomic< uint64_t > threadCounter;
 
+    std::map< schain_index, ptr< queue< ptr< SendableItem >>>> itemQueue; // thsafe
+
     explicit AbstractClientAgent( Schain& _sChain, port_type _portType );
 
-protected:
     void sendItem(const ptr< SendableItem >& _item, schain_index _dstIndex );
 
     virtual pair< ConnectionStatus, ConnectionSubStatus > sendItemImpl(const ptr< SendableItem >& _item,
         const ptr< ClientSocket >& _socket, schain_index _destIndex ) = 0;
 
-    std::map< schain_index, ptr< queue< ptr< SendableItem >>>> itemQueue;
+
 
     uint64_t incrementAndReturnThreadCounter();
 
