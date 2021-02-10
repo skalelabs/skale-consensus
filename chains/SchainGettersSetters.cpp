@@ -131,7 +131,7 @@ transaction_count Schain::getMessagesCount() {
     size_t cntMessages = 0;
     { // block
         lock_guard<mutex> lock(messageMutex);
-        cntMessages = messageQueue.size();
+        cntMessages = consensusMsgQueue.size();
     } // block
     return transaction_count(cntMessages);
 }

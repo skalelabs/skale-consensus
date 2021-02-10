@@ -37,7 +37,6 @@ class ConsensusEdDSASigShareSet : public ThresholdSigShareSet {
 
     map<uint64_t, string> edDSASet;
 
-
 public:
     ConsensusEdDSASigShareSet(block_id _blockId, size_t _totalSigners, size_t _requiredSigners );
 
@@ -47,9 +46,6 @@ public:
 
     bool isEnough() override;
 
-    bool isEnoughMinusOne();
-
     ~ConsensusEdDSASigShareSet() override;
-
 
 };

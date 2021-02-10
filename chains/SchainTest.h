@@ -23,9 +23,6 @@
 
 #pragma once
 
-
-
-
 class SchainTest {
 
 public:

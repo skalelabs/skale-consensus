@@ -24,9 +24,6 @@
 #ifndef SKALED_CONSENSUSEDDSASIGNATURE_H
 #define SKALED_CONSENSUSEDDSASIGNATURE_H
 
-// constexpr uint64_t  MAX_EdDSA_SIGNATURE_SIZE = 64;
-
-
 #include "ThresholdSignature.h"
 
 class ConsensusEdDSASigShareSet;

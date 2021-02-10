@@ -23,12 +23,9 @@
 
 #pragma once
 
-
 #include "threads/WorkerThreadPool.h"
 
-
 class BlockProposalServerAgent;
-
 
 class BlockProposalWorkerThreadPool : public WorkerThreadPool {
 public:

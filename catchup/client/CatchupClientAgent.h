@@ -36,21 +36,16 @@ public:
 
     ptr< CatchupClientThreadPool > catchupClientThreadPool = nullptr;
 
-
     CatchupClientAgent( Schain& _sChain );
 
-
     void sync( schain_index _dstIndex );
-
 
     static void workerThreadItemSendLoop( CatchupClientAgent* _agent );
 
     nlohmann::json readCatchupResponseHeader(const ptr< ClientSocket >& _socket );
 
-
     ptr< CommittedBlockList > readMissingBlocks(
         ptr< ClientSocket >& _socket, nlohmann::json responseHeader );
-
 
     size_t parseBlockSizes( nlohmann::json _responseHeader, const ptr<vector<uint64_t>>& _blockSizes );
 

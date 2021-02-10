@@ -24,8 +24,6 @@
 #ifndef SKALED_CONSENSUSBLSSIGNATURE_H
 #define SKALED_CONSENSUSBLSSIGNATURE_H
 
-// constexpr uint64_t  MAX_BLS_SIGNATURE_SIZE = 64;
-
 
 #include "BLSSignature.h"
 #include "ThresholdSignature.h"
@@ -45,12 +43,11 @@ public:
     ConsensusBLSSignature(const ptr< BLSSignature >& _blsSig, block_id _blockID, size_t _totalSigners,
         size_t _requiredSigners );
 
-    string toString();
+    string toString() override;
 
+    uint64_t getRandom() override;
 
-    uint64_t getRandom();
-
-    ptr<BLSSignature> getBlsSig() const;
+    [[nodiscard]] ptr<BLSSignature> getBlsSig() const;
 };
 
 

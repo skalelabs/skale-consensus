@@ -38,37 +38,26 @@ class ServerConnection;
 class BlockProposal;
 class PartialHashesList;
 class DAProof;
-
 class BlockProposalClientAgent;
 class BlockProposalPusherThreadPool;
-
 class BlockFinalizeDownloader;
 class BlockFinalizeDownloaderThreadPool;
-
 class SchainMessageThreadPool;
-
 class TestMessageGeneratorAgent;
 class ConsensusExtFace;
-
 class CatchupClientAgent;
 class CatchupServerAgent;
 class MonitoringAgent;
 class TimeoutAgent;
 class CryptoManager;
-
 class BlockProposalServerAgent;
-
 class MessageEnvelope;
-
 class Node;
 class PendingTransactionsAgent;
-
 class BlockConsensusAgent;
 class PricingAgent;
 class IO;
 class Sockets;
-
-
 class  BLAKE3Hash;
 class ConsensusBLSSigShare;
 class ThresholdSigShare;
@@ -79,9 +68,6 @@ class Schain : public Agent {
     bool bootStrapped = false;
     bool startingFromCorruptState = false;
 
-public:
-    bool isStartingFromCorruptState() const;
-private:
     atomic<uint64_t>  totalTransactions;
 
     ConsensusExtFace* extFace = nullptr;
@@ -91,9 +77,6 @@ private:
     ptr<TestMessageGeneratorAgent> testMessageGeneratorAgent;
 
     uint64_t startTimeMs;
-
-    set<block_id> startedConsensuses;
-
 
     ptr<BlockProposalServerAgent> blockProposalServerAgent = nullptr;
 
@@ -113,9 +96,7 @@ private:
 
     ptr<SchainMessageThreadPool> consensusMessageThreadPool = nullptr;
 
-
-
-    ptr<IO> io;
+    ptr<IO> io = nullptr;
 
     ptr<CryptoManager> cryptoManager;
 
@@ -130,14 +111,9 @@ private:
     atomic<uint64_t> bootstrapBlockID = 0;
     atomic<uint64_t>lastCommittedBlockTimeStamp = 0;
     atomic<uint64_t>lastCommittedBlockTimeStampMs = 0;
-
     uint64_t maxExternalBlockProcessingTime = 0;
 
-    /*** Queue of unprocessed messages for this schain instance
- */
-    queue<ptr<MessageEnvelope>> messageQueue;
-
-    queue<uint64_t> dispatchQueue;
+    queue<ptr<MessageEnvelope>> consensusMsgQueue;
 
     ptr<NodeInfo> thisNodeInfo = nullptr;
 
@@ -248,13 +224,11 @@ public:
 
     void setHealthCheckFile(uint64_t status);
 
-
     uint64_t getTotalSigners();
 
     uint64_t getRequiredSigners();
 
     u256 getPriceForBlockId(uint64_t _blockId);
-
 
     ptr<CryptoManager> getCryptoManager() const;
 
@@ -263,5 +237,6 @@ public:
     void tryStartingConsensus( const ptr< BooleanProposalVector >& pv, const block_id& bid );
 
     bool fixCorruptStateIfNeeded( block_id id );
+
     void rebroadcastAllMessagesForCurrentBlock() const;
 };

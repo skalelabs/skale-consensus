@@ -29,10 +29,10 @@ class TestConfig {
     bool finalizationDownloadOnly = false;
 
 public:
+
     bool isFinalizationDownloadOnly() const;
 
     TestConfig( nlohmann::json cgf);
-
 };
 
 

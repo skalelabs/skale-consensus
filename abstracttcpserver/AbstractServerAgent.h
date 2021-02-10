@@ -49,10 +49,7 @@ protected:
 
     condition_variable incomingTCPConnectionsCond;
 
-
-
     void send(const ptr<ServerConnection>& _connectionEnvelope, const ptr<Header>& _header);
-
 
 
 public:

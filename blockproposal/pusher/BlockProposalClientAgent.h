@@ -50,6 +50,9 @@ class BlockProposalClientAgent : public AbstractClientAgent {
     friend class BlockProposalPusherThreadPool;
 
 
+    ptr< BlockProposalPusherThreadPool > blockProposalThreadPool = nullptr;
+
+
     ptr< MissingTransactionsRequestHeader > readMissingTransactionsRequestHeader(
         const ptr< ClientSocket >& _socket );
 
@@ -75,7 +78,6 @@ class BlockProposalClientAgent : public AbstractClientAgent {
         const ptr< DAProof >& _daProof, const ptr< ClientSocket >& _socket );
 
 
-    ptr< BlockProposalPusherThreadPool > blockProposalThreadPool = nullptr;
 
 
 public:

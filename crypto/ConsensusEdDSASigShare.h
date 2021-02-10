@@ -24,7 +24,6 @@
 #ifndef SKALED_CONSENSUSEDDSASIGSHARE_H
 #define SKALED_CONSENSUSEDDSASIGSHARE_H
 
-
 #include "ThresholdSigShare.h"
 #include "CryptoManager.h"
 

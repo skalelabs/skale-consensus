@@ -108,7 +108,7 @@ void Schain::postMessage(const ptr< MessageEnvelope >& _me ) {
     CHECK_STATE( ( uint64_t ) _me->getMessage()->getBlockId() != 0 );
     {
         lock_guard< mutex > lock( messageMutex );
-        messageQueue.push( _me );
+        consensusMsgQueue.push( _me );
         messageCond.notify_all();
     }
 }
@@ -131,19 +131,19 @@ void Schain::messageThreadProcessingLoop( Schain* _sChain ) {
         while ( !_sChain->getNode()->isExitRequested() ) {
             {
                 unique_lock< mutex > mlock( _sChain->messageMutex );
-                while ( _sChain->messageQueue.empty() ) {
+                while ( _sChain->consensusMsgQueue.empty() ) {
                     _sChain->messageCond.wait( mlock );
                     if ( _sChain->getNode()->isExitRequested() )
                         return;
                 }
 
-                newQueue = _sChain->messageQueue;
+                newQueue = _sChain->consensusMsgQueue;
 
-                while ( !_sChain->messageQueue.empty() ) {
+                while ( !_sChain->consensusMsgQueue.empty() ) {
                     if ( _sChain->getNode()->isExitRequested() )
                         return;
 
-                    _sChain->messageQueue.pop();
+                    _sChain->consensusMsgQueue.pop();
                 }
             }
 
@@ -899,6 +899,3 @@ bool Schain::fixCorruptStateIfNeeded( block_id _lastCommittedBlockID ) {
 }
 
 
-bool Schain::isStartingFromCorruptState() const {
-    return startingFromCorruptState;
-}

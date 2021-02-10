@@ -43,7 +43,7 @@ protected:
 
     atomic< uint64_t > threadCounter;
 
-    std::map< schain_index, ptr< queue< ptr< SendableItem >>>> itemQueue; // thsafe
+    map< schain_index, ptr< queue< ptr< SendableItem >>>> itemQueue; // thread safe
 
     explicit AbstractClientAgent( Schain& _sChain, port_type _portType );
 

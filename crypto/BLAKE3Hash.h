@@ -37,10 +37,9 @@ blake3_hasher_update(&__HASH__, reinterpret_cast<uint8_t*>(&__OBJECT__),sizeof(_
 
 class BLAKE3Hash {
 
-    array<uint8_t ,HASH_LEN> hash;
+    array<uint8_t ,HASH_LEN> hash; // thread safe
 
 public:
-
 
     explicit BLAKE3Hash() {};
 

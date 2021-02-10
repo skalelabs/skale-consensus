@@ -74,10 +74,6 @@ bool ConsensusEdDSASigShareSet::isEnough() {
 }
 
 
-bool ConsensusEdDSASigShareSet::isEnoughMinusOne() {
-    LOCK(m);
-    return edDSASet.size() >= requiredSigners - 1;
-}
 
 
 bool ConsensusEdDSASigShareSet::addSigShare( const ptr< ThresholdSigShare >& _sigShare ) {

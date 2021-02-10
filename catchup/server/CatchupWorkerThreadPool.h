@@ -23,16 +23,9 @@
 
 #pragma  once
 
-
-
-
-
-
 #include "threads/WorkerThreadPool.h"
 
-
 class CatchupServerAgent;
-
 
 class CatchupWorkerThreadPool : public WorkerThreadPool {
 

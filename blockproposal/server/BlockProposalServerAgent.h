@@ -32,12 +32,8 @@ class BlockFinalizeResponseHeader;
 class BlockProposalRequestHeader;
 class SubmitDAProofRequestHeader;
 class ReceivedBlockProposal;
-
-
 class Transaction;
-
 class TransactionList;
-
 
 class Comparator {
 public:
@@ -56,13 +52,11 @@ public:
 class BlockProposalServerAgent : public AbstractServerAgent {
     ptr< BlockProposalWorkerThreadPool > blockProposalWorkerThreadPool;
 
-
     pair< ConnectionStatus, ConnectionSubStatus > processProposalRequest(
         const ptr< ServerConnection >& _connection, nlohmann::json _proposalRequest );
 
     void processDAProofRequest(
         const ptr< ServerConnection >& _connection, nlohmann::json _daProofRequest );
-
 
 public:
     BlockProposalServerAgent( Schain& _schain, const ptr< TCPServerSocket >& _s );
