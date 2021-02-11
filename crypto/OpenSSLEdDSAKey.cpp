@@ -41,7 +41,6 @@
 OpenSSLEdDSAKey::OpenSSLEdDSAKey( EVP_PKEY* _edKey, bool _isPrivate )
     : isPrivate( _isPrivate )  {
     CHECK_STATE( _edKey );
-
     this->edKey = _edKey;
 }
 OpenSSLEdDSAKey::~OpenSSLEdDSAKey() {
@@ -61,15 +60,13 @@ ptr< OpenSSLEdDSAKey > OpenSSLEdDSAKey::generateKey() {
 }
 
 
-
-
 EVP_PKEY* OpenSSLEdDSAKey::genFastKeyImpl() {
     EVP_PKEY* edkey = nullptr;
     EVP_PKEY_CTX* ctx = nullptr;
     try {
         ctx = EVP_PKEY_CTX_new_id( NID_ED25519, NULL );
         CHECK_STATE( ctx );
-        EVP_PKEY_keygen_init( ctx );
+        CHECK_STATE(EVP_PKEY_keygen_init( ctx ) == 1);
         edkey = EVP_PKEY_new();
         CHECK_STATE( edkey );
         CHECK_STATE( EVP_PKEY_keygen( ctx, &edkey ) > 0 );
