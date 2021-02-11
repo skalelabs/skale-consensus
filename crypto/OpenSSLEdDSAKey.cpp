@@ -53,9 +53,9 @@ OpenSSLEdDSAKey::~OpenSSLEdDSAKey() {
 
 ptr< OpenSSLEdDSAKey > OpenSSLEdDSAKey::generateKey() {
 
-    EVP_PKEY* edkey = nullptr;
+    EVP_PKEY* edkey = genFastKeyImpl();
 
-    edkey = genFastKeyImpl();
+    CHECK_STATE(edkey);
 
     return make_shared< OpenSSLEdDSAKey >(edkey, true);
 }
@@ -73,7 +73,6 @@ EVP_PKEY* OpenSSLEdDSAKey::genFastKeyImpl() {
         edkey = EVP_PKEY_new();
         CHECK_STATE( edkey );
         CHECK_STATE( EVP_PKEY_keygen( ctx, &edkey ) > 0 );
-
     } catch ( ... ) {
         if ( ctx ) {
             EVP_PKEY_CTX_free( ctx );
@@ -182,13 +181,16 @@ string OpenSSLEdDSAKey::serializePubKey() const {
         bio = BIO_new( BIO_s_mem() );
         CHECK_STATE( bio );
         CHECK_STATE(edKey);
-        CHECK_STATE( PEM_write_bio_PUBKEY( bio, edKey ) );
+        CHECK_STATE( PEM_write_bio_PUBKEY( bio, edKey ) == 1);
 
         char* encodedPubKey = nullptr;
         auto pubKeyEncodedLen = BIO_get_mem_data( bio, &encodedPubKey );
         CHECK_STATE( pubKeyEncodedLen > 10 );
-        result = string( encodedPubKey, 0, pubKeyEncodedLen );
-
+        CHECK_STATE(encodedPubKey);
+        char pemKey[pubKeyEncodedLen + 1];
+        strncpy(pemKey, encodedPubKey, pubKeyEncodedLen);
+        pemKey[pubKeyEncodedLen] = '\0';
+        result = string(pemKey);
     } catch (...) {
         if (bio) {
             BIO_free(bio);
