@@ -23,3 +23,6 @@
 [submodule "libjson-rpc-cpp"]
 	path = libjson-rpc-cpp
 	url = https://github.com/skalenetwork/libjson-rpc-cpp.git
+[submodule "cppzmq"]
+	path = cppzmq
+	url = https://github.com/zeromq/cppzmq.git
