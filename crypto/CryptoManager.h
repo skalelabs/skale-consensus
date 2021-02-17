@@ -29,6 +29,9 @@
 #include "openssl/ec.h"
 
 
+#include "network/ZMQClient.h"
+
+
 #define USER_SPACE 1
 
 #include "thirdparty/lru_ordered_cache.hpp"
@@ -77,6 +80,9 @@ class CryptoManager {
 
     map< uint64_t, ptr< jsonrpc::HttpClient > > httpClients;  // tsafe
     map< uint64_t, ptr< StubClient > > sgxClients;            // tsafe
+    map< uint64_t, ptr< ZMQClient > > zmqClients;            // tsafe
+
+
     recursive_mutex clientsLock;
 
     map< uint64_t, string > ecdsaPublicKeyMap;  // tsafe

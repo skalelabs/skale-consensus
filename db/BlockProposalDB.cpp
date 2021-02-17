@@ -21,7 +21,7 @@
     @date 2018
 */
 
-#include "Agent.h"
+
 #include "SkaleCommon.h"
 #include "Log.h"
 #include "abstracttcpserver/ConnectionStatus.h"
@@ -29,14 +29,12 @@
 #include "chains/Schain.h"
 #include "crypto/BLAKE3Hash.h"
 #include "datastructures/BlockProposal.h"
-#include "datastructures/BlockProposalSet.h"
 #include "datastructures/CommittedBlock.h"
 #include "datastructures/DAProof.h"
 #include "exceptions/ExitRequestedException.h"
 #include "exceptions/FatalError.h"
 #include "leveldb/db.h"
 #include "monitoring/LivelinessMonitor.h"
-#include "node/Node.h"
 #include "pendingqueue/PendingTransactionsAgent.h"
 #include "thirdparty/json.hpp"
 
@@ -121,6 +119,10 @@ ptr<BlockProposal> BlockProposalDB::getBlockProposal(block_id _blockID, schain_i
     if (auto result = proposalCache->getIfExists(key); result.has_value()) {
             return any_cast<ptr<BlockProposal>>(result);
     }
+
+    // we do not store non-own proposals
+    if (_proposerIndex !=  getSchain()->getSchainIndex())
+        return nullptr;
 
     auto serializedProposal = getSerializedProposalFromLevelDB(_blockID, _proposerIndex);
 
