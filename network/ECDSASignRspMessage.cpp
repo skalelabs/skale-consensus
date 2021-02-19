@@ -21,7 +21,6 @@
   @date 2020
 */
 
-#include "SGXWalletServer.hpp"
 
 #include "ECDSASignRspMessage.h"
 
@@ -33,8 +32,6 @@ Json::Value ECDSASignRspMessage::process() {
 }
 
 string ECDSASignRspMessage::getSignature() {
-
-
 
     string r = getStringRapid( "signature_r" );
     string v = getStringRapid( "signature_v" );

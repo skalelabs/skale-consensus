@@ -22,17 +22,6 @@
 */
 
 
-#include "SGXWalletServer.hpp"
 
 #include "ECDSASignReqMessage.h"
 
-
-
-Json::Value ECDSASignReqMessage::process() {
-    auto base = getUint64Rapid("base");
-    auto keyName = getStringRapid("keyName");
-    auto hash = getStringRapid("messageHash");
-    auto result =  SGXWalletServer::ecdsaSignMessageHashImpl(base, keyName, hash);
-    result["type"] = ZMQMessage::ECDSA_SIGN_RSP;
-    return result;
-}

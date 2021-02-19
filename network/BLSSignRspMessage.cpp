@@ -22,7 +22,6 @@
 */
 
 #include "BLSSignRspMessage.h"
-#include "SGXWalletServer.hpp"
 
 
 Json::Value BLSSignRspMessage::process() {
