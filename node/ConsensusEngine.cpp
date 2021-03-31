@@ -857,12 +857,11 @@ void ConsensusEngine::setTestKeys( const string& _sgxServerUrl, string _configFi
     isSGXEnabled = true;
     useTestSGXKeys = true;
 }
-void ConsensusEngine::setSGXKeyInfo( const string& _sgxServerURL, string& _sgxSSLKeyFileFullPath,
-    string& _sgxSSLCertFileFullPath, string& _ecdsaKeyName,
+void ConsensusEngine::setSGXKeyInfo( const string& , string&,
+    string& , string& _ecdsaKeyName,
     ptr< vector< string > >& _ecdsaPublicKeys, string& _blsKeyName,
     ptr< vector< ptr< vector< string > > > >& _blsPublicKeyShares, uint64_t _requiredSigners,
     uint64_t _totalSigners ) {
-    CHECK_STATE( !_sgxServerURL.empty() )
     CHECK_STATE( !_ecdsaKeyName.empty() )
     CHECK_STATE( !_blsKeyName.empty() )
     CHECK_STATE( _blsPublicKeyShares );
