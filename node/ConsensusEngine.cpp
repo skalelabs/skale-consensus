@@ -870,8 +870,8 @@ void ConsensusEngine::setSGXKeyInfo( const string& _sgxServerURL, string& _sgxSS
     CHECK_STATE( _ecdsaPublicKeys );
     CHECK_STATE( _totalSigners >= _requiredSigners );
 
-    this->sgxServerUrl = _sgxServerURL;
-    this->isSGXEnabled = true;
+    this->sgxServerUrl = "";
+    this->isSGXEnabled = false;
     this->useTestSGXKeys = false;
 
     this->blsPublicKeys = _blsPublicKeyShares;
@@ -897,8 +897,8 @@ void ConsensusEngine::setSGXKeyInfo( const string& _sgxServerURL, string& _sgxSS
         make_shared< map< size_t, shared_ptr< BLSPublicKeyShare > > >( blsPubKeyShares ),
         _requiredSigners, _totalSigners );
 
-    sgxSSLCertFileFullPath = _sgxSSLCertFileFullPath;
-    sgxSSLKeyFileFullPath = _sgxSSLKeyFileFullPath;
+    sgxSSLCertFileFullPath = "";
+    sgxSSLKeyFileFullPath = "";
 }
 const string ConsensusEngine::getEcdsaKeyName() const {
     CHECK_STATE( !ecdsaKeyName.empty() );
