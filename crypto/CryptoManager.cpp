@@ -81,17 +81,16 @@
 #include "CryptoManager.h"
 
 void CryptoManager::initSGXClient() {
-    if ( isSGXEnabled ) {
-        if ( isHTTPSEnabled ) {
-            if ( isSSLCertEnabled ) {
-                LOG( info, string( "Setting sgxSSLKeyFileFullPath to " ) + sgxSSLKeyFileFullPath );
-                LOG(
-                    info, string( "Setting sgxCertKeyFileFullPath to " ) + sgxSSLCertFileFullPath );
-                setSGXKeyAndCert( sgxSSLKeyFileFullPath, sgxSSLCertFileFullPath, sgxPort );
-            } else {
-                LOG( info, string( "Setting sgxSSLKeyCertFileFullPath  is not set."
-                                   "Assuming SGX server does not require client certs" ) );
-            }
+    CHECK_STATE( isSGXEnabled );
+
+    if ( isHTTPSEnabled ) {
+        if ( isSSLCertEnabled ) {
+            LOG( info, string( "Setting sgxSSLKeyFileFullPath to " ) + sgxSSLKeyFileFullPath );
+            LOG( info, string( "Setting sgxCertKeyFileFullPath to " ) + sgxSSLCertFileFullPath );
+            setSGXKeyAndCert( sgxSSLKeyFileFullPath, sgxSSLCertFileFullPath, sgxPort );
+        } else {
+            LOG( info, string( "Setting sgxSSLKeyCertFileFullPath  is not set."
+                               "Assuming SGX server does not require client certs" ) );
         }
 
 
@@ -204,6 +203,7 @@ CryptoManager::CryptoManager( Schain& _sChain )
     isSGXEnabled = _sChain.getNode()->isSgxEnabled();
 
     if ( isSGXEnabled ) {
+        LOG(info, "Configuring SGX client ...");
         auto node = _sChain.getNode();
         sgxURL = node->getSgxUrl();
         if ( sgxURL.back() == '/' ) {
@@ -261,6 +261,8 @@ CryptoManager::CryptoManager( Schain& _sChain )
             throw_with_nested(
                 InvalidStateException( "Could not create blsPublicKey", __CLASS_NAME__ ) );
         }
+    } else {
+        LOG(warn, "SGX DISABLED. NEVER USE IN PRODUCTION!");
     }
 }
 
