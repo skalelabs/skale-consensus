@@ -381,23 +381,25 @@ void ConsensusEngine::parseTestConfigsAndCreateAllNodes( const fs_path& dirname 
         string filePath;
 
         if ( sgxDirExists ) {
+            isSGXEnabled = true;
             filePath = dirname.string() + "/../../run_sgx_test/sgx_data" + "/" +
                        to_string( nodeCount ) + "node.json";
-            if ( is_regular_file( filePath ) ) {
-                CHECK_STATE( nodeCount % 3 == 1 );
-                sgxServerUrl = string( "http://localhost:1029" );
 
-                sgxSSLKeyFileFullPath =
-                    "/d/skale-consensus/run_sgx_test/sgx_data/cert_data/SGXServerCert.key";
-                sgxSSLCertFileFullPath =
-                    "/d/skale-consensus/run_sgx_test/sgx_data/cert_data/SGXServerCert.crt";
+            LOG(info, "SGX file path:" + filePath);
 
-                this->setTestKeys(sgxServerUrl, filePath, nodeCount, nodeCount - 1 / 3 );
-            }
-        }
+            CHECK_STATE( is_regular_file( filePath ) )
 
 
-        if ( isSGXEnabled ) {
+            CHECK_STATE( nodeCount % 3 == 1 );
+            sgxServerUrl = string( "http://localhost:1029" );
+
+            sgxSSLKeyFileFullPath =
+                "/d/skale-consensus/run_sgx_test/sgx_data/cert_data/SGXServerCert.key";
+            sgxSSLCertFileFullPath =
+                "/d/skale-consensus/run_sgx_test/sgx_data/cert_data/SGXServerCert.crt";
+
+            this->setTestKeys( sgxServerUrl, filePath, nodeCount, nodeCount - 1 / 3 );
+
             CHECK_STATE( ecdsaPublicKeys );
             CHECK_STATE( ecdsaKeyNames );
             CHECK_STATE( blsKeyNames );
@@ -446,8 +448,9 @@ void ConsensusEngine::parseTestConfigsAndCreateAllNodes( const fs_path& dirname 
             }
 
             // cert and key file name for tests come from the config
-            readNodeConfigFileAndCreateNode( dirNames.at( j ), nodeIDs, isSGXEnabled, sgxSSLKeyFileFullPath, sgxSSLCertFileFullPath,
-                ecdsaKey, ecdsaPublicKeys, blsKey, blsPublicKeys, blsPublicKey );
+            readNodeConfigFileAndCreateNode( dirNames.at( j ), nodeIDs, isSGXEnabled,
+                sgxSSLKeyFileFullPath, sgxSSLCertFileFullPath, ecdsaKey, ecdsaPublicKeys, blsKey,
+                blsPublicKeys, blsPublicKey );
         };
 
         if ( nodes.size() == 0 ) {
@@ -792,7 +795,7 @@ u256 ConsensusEngine::getPriceForBlockId( uint64_t _blockId ) const {
         return result;
     }
 
-    throw std::invalid_argument("Price not found");
+    throw std::invalid_argument( "Price not found" );
 }
 
 
@@ -838,11 +841,10 @@ string ConsensusEngine::getDbDir() const {
     return dbDir;
 }
 void ConsensusEngine::setTestKeys(
-    string _serverURL,
-    string _configFile, uint64_t _totalNodes, uint64_t _requiredNodes ) {
+    string _serverURL, string _configFile, uint64_t _totalNodes, uint64_t _requiredNodes ) {
     CHECK_STATE( !useTestSGXKeys )
-    CHECK_STATE( !isSGXEnabled )
-    CHECK_STATE(!_serverURL.empty())
+    CHECK_STATE( isSGXEnabled )
+    CHECK_STATE( !_serverURL.empty() )
 
     sgxServerUrl = _serverURL;
 
@@ -856,7 +858,7 @@ void ConsensusEngine::setTestKeys(
     CHECK_STATE( blsPublicKeys );
     CHECK_STATE( blsPublicKey );
 
-    isSGXEnabled = true;
+
     useTestSGXKeys = true;
 }
 void ConsensusEngine::setSGXKeyInfo( const string& _sgxServerURL, string& _sgxSSLKeyFileFullPath,
